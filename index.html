@@ -13,7 +13,6 @@
       --border-color: #000000;
       --primary-yellow: #facc15;
       --primary-blue: #3b82f6;
-      --primary-red: #ef4444;
       --text-light: #f7fafc;
     }
     body {
@@ -35,14 +34,14 @@
       overflow: hidden;
     }
     .avatar-big {
-      width: 95px;
-      height: 95px;
+      width: 110px;
+      height: 110px;
       border-radius: 50%;
       border: 4px solid #222;
       box-shadow: 0 4px 16px #000a;
       object-fit: cover;
       background: #fff;
-      margin: 0 auto;
+      margin: 0 auto 0.3em auto;
       display: block;
     }
     .calendar-grid {
@@ -86,7 +85,7 @@
     }
     .comic-button {
       border: 3px solid var(--border-color);
-      text-shadow: 2px 2px 0px #0003;
+      text-shadow: 1px 1px 0px #fff;
       background: linear-gradient(90deg, #3b82f6 60%, #60a5fa 100%);
       font-family: 'Bangers', cursive;
       letter-spacing: 1.5px;
@@ -98,31 +97,11 @@
       cursor: pointer;
       display: inline-block;
     }
-    .file-input-wrapper {
-        position: relative;
-        overflow: hidden;
-        display: inline-block;
-        width: 100%;
-    }
-    .file-input-wrapper input[type=file] {
-        font-size: 100px;
-        position: absolute;
-        left: 0;
-        top: 0;
-        opacity: 0;
-        cursor: pointer;
-    }
-    .file-input-wrapper .comic-button {
-        width: 100%;
-        text-align: center;
-        background: linear-gradient(90deg, #4b5563 60%, #6b7280 100%);
-    }
     @media (max-width: 900px) {
       .calendar-grid { font-size: 1.1rem; }
-      .avatar-big { width: 70px; height: 70px; }
+      .avatar-big { width: 80px; height: 80px; }
     }
     @media (max-width: 600px) {
-      .header-row { grid-template-columns: 1fr !important; }
       .calendar-grid { font-size: 0.97rem; }
     }
   </style>
@@ -130,24 +109,20 @@
 <body>
 <div class="container mx-auto px-2 py-4 max-w-xl">
 
-  <div class="grid header-row grid-cols-3 gap-2 mb-4 items-center">
-    <div class="comic-panel text-center py-4 flex flex-col items-center justify-center">
-      <div class="text-xl md:text-2xl" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">HOURS LOGGED</div>
-      <div class="text-3xl md:text-4xl font-bold mt-2">16.25</div>
-    </div>
-    <div class="flex flex-col items-center justify-center">
-      <img 
-        src="https://raw.githubusercontent.com/theendgameishere/Drevil/refs/heads/main/dr-evil-shane.jpg.png"
-        alt="Dr. Evil Shane"
-        class="avatar-big shadow-lg"
-      >
-    </div>
-    <div class="comic-panel text-center py-4 flex flex-col items-center justify-center">
-      <div class="text-xl md:text-2xl" style="color:var(--primary-red);text-shadow:2px 2px 0px var(--border-color);">HOURS MISSED</div>
-      <div class="text-3xl md:text-4xl font-bold mt-2">0</div>
+  <!-- Centered Avatar + Hours Logged -->
+  <div class="flex flex-col items-center justify-center mb-4">
+    <img 
+      src="https://raw.githubusercontent.com/theendgameishere/Drevil/refs/heads/main/dr-evil-shane.jpg.png"
+      alt="Dr. Evil Shane"
+      class="avatar-big shadow-lg"
+    >
+    <div class="comic-panel text-center px-8 py-4 mt-2 flex flex-col items-center justify-center max-w-xs">
+      <div class="text-2xl md:text-3xl" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">HOURS LOGGED</div>
+      <div class="text-4xl md:text-5xl font-bold mt-2">16.25</div>
     </div>
   </div>
 
+  <!-- CALENDAR PANEL: Centered, Narrower -->
   <div class="comic-panel mx-auto p-4 max-w-md" style="margin-bottom:1.5rem;">
     <div class="flex justify-between items-center mb-2">
       <button id="prev-month" class="comic-button">PREV</button>
@@ -157,79 +132,69 @@
     <div id="calendar-grid" class="calendar-grid"></div>
   </div>
 
-  <div class="comic-panel p-4 mt-4 text-center flex flex-col gap-3 items-center max-w-md mx-auto">
-    <label class="text-xl md:text-2xl font-bold" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">MISSION CONTROL</label>
-    <button id="toggle-upload-btn" class="comic-button">UPLOAD SCHEDULE</button>
-    <div id="upload-panel" class="hidden w-full p-3 bg-gray-800 rounded-lg border-2 border-black">
-        <p class="mb-2 text-base">Select schedule screenshot:</p>
-        <div class="file-input-wrapper">
-          <button class="comic-button">CHOOSE FILE</button>
-          <input type="file" id="schedule-upload" accept="image/*">
-        </div>
-        <p id="file-name-display" class="text-sm mt-2 text-gray-400">No file selected.</p>
-    </div>
+  <!-- Mission Archives -->
+  <div class="comic-panel p-4 mt-4 text-center flex flex-col gap-2 items-center max-w-md mx-auto">
+    <label class="text-xl md:text-2xl font-bold mb-2" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">MISSION ARCHIVES:</label>
+    <select id="month-select" class="comic-button text-xl p-2 pr-8"></select>
   </div>
-
 </div>
 
+<!-- Modal for shift details -->
 <div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div id="modal" class="comic-panel w-full max-w-sm sm:max-w-md m-4 p-0 relative shadow-2xl bg-yellow-200 border-4 border-black rounded-xl overflow-hidden" style="background-image: none;">
-      <div class="flex items-center gap-4 p-4 pb-0">
-        <div class="flex-1 text-center">
-          <h2 id="modal-title" class="text-2xl sm:text-3xl font-bold text-black mb-0" style="font-family: 'Bangers', cursive; letter-spacing: 1px;">SHIFT DETAILS</h2>
-          <div id="modal-date" class="text-black text-base font-semibold"></div>
-        </div>
-        <button id="close-modal" class="ml-auto comic-button bg-primary-red rounded-full w-10 h-10 flex items-center justify-center text-2xl p-0 absolute top-2 right-2">X</button>
+  <div id="modal" class="comic-panel w-full max-w-sm sm:max-w-md m-4 p-0 relative shadow-2xl bg-yellow-200 border-4 border-black rounded-xl overflow-hidden" style="background-image: none;">
+    <div class="flex items-center gap-4 p-4 pb-0">
+      <div class="flex-1 text-center">
+        <h2 id="modal-title" class="text-2xl sm:text-3xl font-bold text-black mb-0" style="font-family: 'Bangers', cursive; letter-spacing: 1px;">SHIFT DETAILS</h2>
+        <div id="modal-date" class="text-black text-base font-semibold"></div>
       </div>
-      <div id="modal-content" class="text-black px-6 py-3 text-lg font-bold font-sans leading-relaxed"></div>
+      <button id="close-modal" class="ml-auto comic-button bg-primary-red rounded-full w-10 h-10 flex items-center justify-center text-2xl p-0 absolute top-2 right-2">X</button>
     </div>
+    <div id="modal-content" class="text-black px-6 py-3 text-lg font-bold font-sans leading-relaxed">
+      <!-- Modal content will be injected here -->
+    </div>
+  </div>
 </div>
 
 <script>
-// --- SCHEDULE DATA: This is where the magic will happen ---
-// For now, it's the dummy data. The goal is to populate this from the uploaded image.
-let fullSchedule = {
-  '2025-8-3': [ { name: 'Shane', start: '1:00 PM', end: '9:15 PM' }, { name: 'Deanthony', start: '4:00 PM', end: '9:15 PM' } ],
-  '2025-8-5': [ { name: 'Shane', start: '5:15 PM', end: '9:15 PM' }, { name: 'Dylan', start: '12:15 PM', end: '9:15 PM' }, ],
-  '2025-8-6': [ { name: 'Shane', start: '4:15 PM', end: '9:15 PM' }, { name: 'Dylan', start: '2:00 PM', end: '9:15 PM' }, ]
+// --- DUMMY SCHEDULE DATA FOR DEMO ---
+const fullSchedule = {
+  '2025-8-3': [
+    { name: 'Shari', start: '10:45 AM', end: '11:45 AM' },
+    { name: 'Shane', start: '1:00 PM', end: '9:15 PM' },
+    { name: 'Deanthony', start: '4:00 PM', end: '9:15 PM' }
+  ],
+  '2025-8-5': [
+    { name: 'Shari', start: '8:00 AM', end: '6:00 PM' },
+    { name: 'Dylan', start: '12:15 PM', end: '9:15 PM' },
+    { name: 'Brendan', start: '5:00 AM', end: '10:00 AM' },
+    { name: 'Shane', start: '5:15 PM', end: '9:15 PM' },
+    { name: 'Deanthony', start: '5:00 AM', end: '10:00 AM' },
+    { name: 'Jacob', start: '7:00 AM', end: '2:00 PM' }
+  ],
+  '2025-8-6': [
+    { name: 'Shari', start: '8:00 AM', end: '4:15 PM' },
+    { name: 'Dylan', start: '2:00 PM', end: '9:15 PM' },
+    { name: 'Brendan', start: '5:00 AM', end: '1.00 PM' },
+    { name: 'Shane', start: '4:15 PM', end: '9:15 PM' },
+    { name: 'Deanthony', start: '5:00 AM', end: '10:00 AM' },
+    { name: 'Jacob', start: '4:00 PM', end: '9:00 PM' }
+  ]
 };
-
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 let currentDate = new Date('2025-08-01T12:00:00');
-
-// --- Element Selectors ---
 const calendarGrid = document.getElementById('calendar-grid');
 const monthYearHeader = document.getElementById('month-year-header');
 const prevMonthBtn = document.getElementById('prev-month');
 const nextMonthBtn = document.getElementById('next-month');
+const monthSelect = document.getElementById('month-select');
 const modalBackdrop = document.getElementById('modal-backdrop');
 const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modal-title');
 const modalContent = document.getElementById('modal-content');
 const closeModalBtn = document.getElementById('close-modal');
 const modalDate = document.getElementById('modal-date');
-const toggleUploadBtn = document.getElementById('toggle-upload-btn');
-const uploadPanel = document.getElementById('upload-panel');
-const scheduleUploadInput = document.getElementById('schedule-upload');
-const fileNameDisplay = document.getElementById('file-name-display');
-
-// === NEW SCRIPT FOR UPLOAD PANEL ===
-toggleUploadBtn.addEventListener('click', () => {
-    uploadPanel.classList.toggle('hidden');
-});
-
-scheduleUploadInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-        fileNameDisplay.textContent = e.target.files[0].name;
-    } else {
-        fileNameDisplay.textContent = 'No file selected.';
-    }
-});
-// === END OF NEW SCRIPT ===
-
 
 function parseTime(str) {
-  // ... (rest of the script is unchanged)
   let [time, period] = str.split(' ');
   let [h, m] = time.split(':').map(Number);
   if (period === 'PM' && h !== 12) h += 12;
@@ -238,9 +203,7 @@ function parseTime(str) {
 }
 function hasOverlap(a, b) {
   let aStart = parseTime(a.start), aEnd = parseTime(a.end);
-  if (isNaN(aStart) || isNaN(aEnd)) return false; // Handle invalid times
   let bStart = parseTime(b.start), bEnd = parseTime(b.end);
-  if (isNaN(bStart) || isNaN(bEnd)) return false;
   return (aStart < bEnd && bStart < aEnd);
 }
 function renderCalendar() {
@@ -272,9 +235,9 @@ function renderCalendar() {
     const cell = document.createElement('div');
     cell.className = "day-cell";
     cell.innerHTML = `<span class="day-number">${day}</span>`;
-    if (fullSchedule[key] && fullSchedule[key].some(s => s.name.toLowerCase() === 'shane')) {
+    if (fullSchedule[key]) {
       cell.classList.add('scheduled');
-      cell.tabIndex = 0;
+      cell.tabIndex = 0; // Make focusable
       cell.setAttribute('role', 'button');
       cell.setAttribute('aria-label', `See schedule for ${monthNames[month]} ${day}`);
       cell.addEventListener('click', () => showModalForDay(key, date));
@@ -368,17 +331,46 @@ closeModalBtn.addEventListener('click', hideModal);
 prevMonthBtn.addEventListener('click', () => {
   currentDate.setMonth(currentDate.getMonth() - 1);
   renderCalendar();
+  syncMonthSelect();
 });
-
 nextMonthBtn.addEventListener('click', () => {
   currentDate.setMonth(currentDate.getMonth() + 1);
+  renderCalendar();
+  syncMonthSelect();
+});
+function syncMonthSelect() {
+  monthSelect.value = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}`;
+}
+function renderMonthSelect() {
+  const months = [];
+  let d = new Date();
+  d.setMonth(d.getMonth() - 6);
+  for (let i = 0; i < 13; i++) {
+    const y = d.getFullYear(), m = d.getMonth();
+    months.push({ y, m });
+    d.setMonth(d.getMonth() + 1);
+  }
+  monthSelect
+  monthSelect.innerHTML = '';
+  months.forEach(({ y, m }) => {
+    const opt = document.createElement('option');
+    opt.value = `${y}-${m + 1}`;
+    opt.textContent = `${monthNames[m]} ${y}`;
+    if (y === currentDate.getFullYear() && m === currentDate.getMonth())
+      opt.selected = true;
+    monthSelect.appendChild(opt);
+  });
+}
+monthSelect.addEventListener('change', (e) => {
+  const [y, m] = e.target.value.split('-').map(Number);
+  currentDate = new Date(y, m - 1, 1);
   renderCalendar();
 });
 
 // Initial render
 renderCalendar();
-
+renderMonthSelect();
+syncMonthSelect();
 </script>
 </body>
 </html>
- 
