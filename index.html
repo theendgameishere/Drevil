@@ -35,100 +35,7 @@
       position: relative;
       overflow: hidden;
     }
-    .comic-panel::before {
-      content: "";
-      display: block;
-      position: absolute;
-      left: 10px; top: 10px;
-      width: 60%;
-      height: 18%;
-      background: linear-gradient(120deg, #fff8 50%, transparent 90%);
-      border-radius: 40px 40px 80px 20px;
-      pointer-events: none;
-      z-index: 2;
-      opacity: .18;
-      filter: blur(2px);
-    }
-    .comic-panel::after {
-      content: "";
-      display: block;
-      position: absolute;
-      inset: 0;
-      border-radius: 10px;
-      box-shadow: inset 0 3px 28px -7px #0006;
-      pointer-events: none;
-      z-index: 1;
-    }
-    .comic-button {
-      @apply px-6 py-2 text-2xl text-black rounded-md transition-transform duration-150 ease-in-out;
-      border: 3px solid var(--border-color);
-      text-shadow: 1px 1px 0px #fff;
-      background: linear-gradient(90deg, #facc15 60%, #fcd34d 100%);
-      font-family: 'Bangers', cursive;
-      letter-spacing: 1.5px;
-    }
-    .comic-button.bg-primary-blue {
-      background: linear-gradient(90deg, #3b82f6 60%, #60a5fa 100%);
-      color: #fff;
-    }
-    .comic-button.bg-primary-red {
-      background: linear-gradient(90deg, #ef4444 60%, #f87171 100%);
-      color: #fff;
-    }
-    .comic-button:hover {
-      transform: translateY(-2px) scale(1.05);
-    }
-    .comic-button:active {
-      transform: translateY(2px) scale(.97);
-    }
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-    }
-    .day-cell {
-      @apply flex flex-col items-center justify-center aspect-square text-3xl cursor-pointer transition-transform duration-150 relative;
-      border: 3px solid var(--border-color);
-      background-color: #4a5568;
-      font-family: 'Bangers', cursive;
-      font-size: 2rem;
-    }
-    .day-cell:hover {
-      transform: scale(1.05);
-      background: linear-gradient(100deg, #718096 80%, #a0aec0 100%);
-    }
-    .day-cell.other-month {
-      background-color: var(--panel-bg);
-      color: #718096;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
-    .day-cell.scheduled {
-      background: linear-gradient(100deg, #3b82f6 85%, #facc15 120%);
-      color: var(--text-light);
-      border-color: var(--primary-yellow);
-      text-shadow: 2px 2px 0px var(--border-color);
-      font-weight: bold;
-    }
-    .day-cell .day-badge {
-      position: absolute;
-      top: 4px;
-      right: 6px;
-      font-size: 1.5rem;
-      pointer-events: none;
-      z-index: 5;
-    }
-    #modal {
-      box-shadow: 0 10px 32px #0009, 8px 8px 0 #222;
-      background-color: #f7f5c9 !important;
-      background-image: none !important;
-      border-radius: 18px !important;
-      padding: 0 !important;
-    }
-    #modal-content {
-      font-family: 'Open Sans', Arial, sans-serif !important;
-      color: #222 !important;
-    }
+    /* ... your other CSS ... */
     .host-avatar {
       display: block;
       margin-left: auto;
@@ -146,29 +53,35 @@
       z-index: 2;
     }
     @media (max-width: 640px) {
-      .text-5xl { font-size: 2rem !important; }
-      .text-4xl { font-size: 1.4rem !important; }
-      .w-40, .h-40 { width: 90px !important; height: 90px !important; }
-      #modal { max-width: 97vw !important; }
-      #modal-content { font-size: 1rem !important; }
       .host-avatar { width: 80px; height: 80px; margin-top: -40px; }
     }
   </style>
 </head>
 <body>
+<!-- Floating Dr. Evil avatar in the top right corner -->
+<div class="fixed top-8 right-5 z-20 flex flex-col items-center">
+  <img 
+    src="https://raw.githubusercontent.com/theendgameishere/Drevil/refs/heads/main/dr-evil-shane.jpg.png"
+    alt="Dr. Evil Shane"
+    class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-black shadow-lg bg-white"
+    style="background:#fff;"
+  >
+</div>
+
 <div class="container mx-auto p-4 max-w-4xl">
-  <!-- Header -->
-  <header class="grid grid-cols-3 items-center gap-4 mb-6">
-    <div class="comic-panel p-4 text-center">
-      <h2 class="text-2xl" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">Hours Logged</h2>
-      <p class="text-5xl">16.25</p>
-    <div class="flex justify-center">
-  <div class="w-40 h-40 rounded-full comic-panel p-1 bg-primary-blue flex items-center justify-center overflow-visible relative" id="hero-badge">
-    <img 
-      src="https://raw.githubusercontent.com/theendgameishere/Drevil/refs/heads/main/dr-evil-shane.jpg.png"
-      alt="Dr. Evil Shane"
-      class="w-36 h-36 rounded-full object-cover border-4 border-black shadow-lg"
-      style="background:#fff;"
+  <!-- Header and rest of your content goes here -->
+font-family: 'Bangers', cursive;
+      letter-spacing: 1.5px;
+    }
+    .comic-button.bg-primary-blue {
+      background: linear-gradient(90deg, #3b82f6 60%, #60a5fa 100%);
+      color: #fff;
+    }
+    .comic-button.bg-primary-red {
+      background: linear-gradient(90deg, #ef4444 60%, #f87171 100%);
+      color: #fff;
+    }
+    .
     >
   /div>
 </div>
