@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkQuest: Hero Edition</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hero-bg: #1a202c;
+      --panel-bg: #2d3748;
+      --border-color: #000000;
+      --primary-yellow: #facc15;
+      --primary-blue: #3b82f6;
+      --primary-red: #ef4444;
+      --text-light: #f7fafc;
+    }
+    body {
+      background-color: var(--hero-bg);
+      background-image:
+        radial-gradient(circle at 25px 25px, rgba(255,255,255,0.10) 2%, transparent 0%),
+        radial-gradient(circle at 75px 75px, rgba(255,255,255,0.10) 2%, transparent 0%);
+      background-size: 100px 100px;
+      font-family: 'Bangers', cursive;
+      color: var(--text-light);
+      letter-spacing: 1.5px;
+    }
+    .comic-panel {
+      background: linear-gradient(120deg, #2d3748 80%, #374151 100%);
+      border: 4px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 7px 7px 0px 0px var(--border-color), 0 0 36px 0 #0007;
+      position: relative;
+      overflow: hidden;
+    }
+    .comic-panel::before {
+      content: "";
+      display: block;
+      position: absolute;
+      left: 10px; top: 10px;
+      width: 60%;
+      height: 18%;
+      background: linear-gradient(120deg, #fff8 50%, transparent 90%);
+      border-radius: 40px 40px 80px 20px;
+      pointer-events: none;
+      z-index: 2;
+      opacity: .18;
+      filter: blur(2px);
+    }
+    .comic-panel::after {
+      content: "";
+      display: block;
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      box-shadow: inset 0 3px 28px -7px #0006;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .comic-button {
+      @apply px-6 py-2 text-2xl text-black rounded-md transition-transform duration-150 ease-in-out;
+      border: 3px solid var(--border-color);
+      text-shadow: 1px 1px 0px #fff;
+      background: linear-gradient(90deg, #facc15 60%, #fcd34d 100%);
+      font-family: 'Bangers', cursive;
+      letter-spacing: 1.5px;
+    }
+    .comic-button.bg-primary-blue {
+      background: linear-gradient(90deg, #3b82f6 60%, #60a5fa 100%);
+      color: #fff;
+    }
+    .comic-button.bg-primary-red {
+      background: linear-gradient(90deg, #ef4444 60%, #f87171 100%);
+      color: #fff;
+    }
+    .comic-button:hover {
+      transform: translateY(-2px) scale(1.05);
+    }
+    .comic-button:active {
+      transform: translateY(2px) scale(.97);
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .day-cell {
+      @apply flex flex-col items-center justify-center aspect-square text-3xl cursor-pointer transition-transform duration-150 relative;
+      border: 3px solid var(--border-color);
+      background-color: #4a5568;
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+    }
+    .day-cell:hover {
+      transform: scale(1.05);
+      background: linear-gradient(100deg, #718096 80%, #a0aec0 100%);
+    }
+    .day-cell.other-month {
+      background-color: var(--panel-bg);
+      color: #718096;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .day-cell.scheduled {
+      background: linear-gradient(100deg, #3b82f6 85%, #facc15 120%);
+      color: var(--text-light);
+      border-color: var(--primary-yellow);
+      text-shadow: 2px 2px 0px var(--border-color);
+      font-weight: bold;
+    }
+    .day-cell .day-badge {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 1.5rem;
+      pointer-events: none;
+      z-index: 5;
+    }
+    #modal {
+      box-shadow: 0 10px 32px #0009, 8px 8px 0 #222;
+      background-color: #f7f5c9 !important;
+      background-image: none !important;
+      border-radius: 18px !important;
+      padding: 0 !important;
+    }
+    #modal-content {
+      font-family: 'Open Sans', Arial, sans-serif !important;
+      color: #222 !important;
+    }
+    .host-avatar {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: -54px;
+      margin-bottom: 10px;
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      border: 4px solid #222;
+      box-shadow: 0 4px 16px #000a;
+      object-fit: cover;
+      background: #fff;
+      position: relative;
+      z-index: 2;
+    }
+    @media (max-width: 640px) {
+      .text-5xl { font-size: 2rem !important; }
+      .text-4xl { font-size: 1.4rem !important; }
+      .w-40, .h-40 { width: 90px !important; height: 90px !important; }
+      #modal { max-width: 97vw !important; }
+      #modal-content { font-size: 1rem !important; }
+      .host-avatar { width: 80px; height: 80px; margin-top: -40px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container mx-auto p-4 max-w-4xl">
+  <!-- Header -->
+  <header class="grid grid-cols-3 items-center gap-4 mb-6">
+    <div class="comic-panel p-4 text-center">
+      <h2 class="text-2xl" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">Hours Logged</h2>
+      <p class="text-5xl">16.25</p>
+    </div>
+    <div class="flex justify-center">
+      <div class="w-40 h-40 rounded-full comic-panel p-1 bg-primary-blue flex items-center justify-center overflow-visible relative" id="hero-badge">
+        <!-- SVG flies in on load -->
+        <svg class="w-32 h-32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 50,10 L 90,90 L 10,90 Z" fill="#ef4444" stroke="#000" stroke-width="4"/>
+          <path d="M 50,20 L 80,80 L 20,80 Z" fill="#facc15"/>
+          <text x="50" y="75" font-family="Bangers, cursive" font-size="60" fill="#000" text-anchor="middle">S</text>
+        </svg>
+      </div>
+    </div>
+    <div class="comic-panel p-4 text-center">
+      <h2 class="text-2xl" style="color:var(--primary-red);text-shadow:2px 2px 0px var(--border-color);">Hours Missed</h2>
+      <p class="text-5xl">0</p>
+    </div>
+  </header>
+  <!-- Calendar -->
+  <main class="comic-panel p-4">
+    <div class="flex justify-between items-center mb-4">
+      <button id="prev-month" class="comic-button bg-primary-blue">Prev</button>
+      <h1 id="month-year-header" class="text-5xl text-center" style="color:var(--primary-yellow);text-shadow:3px 3px 0px var(--border-color);">August 2025</h1>
+      <button id="next-month" class="comic-button bg-primary-blue">Next</button>
+    </div>
+    <div id="calendar-grid" class="calendar-grid">
+      <!-- Calendar will be generated here -->
+    </div>
+  </main>
+  <!-- Footer -->
+  <footer class="mt-6 text-center">
+    <div class="inline-block comic-panel p-2">
+      <label for="month-select" class="text-2xl mr-2" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">Mission Archives:</label>
+      <select id="month-select" class="comic-button bg-primary-blue text-2xl p-2 pr-8"></select>
+    </div>
+  </footer>
+</div>
+<!-- Modal -->
+<div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+  <div id="modal" class="comic-panel w-full max-w-sm sm:max-w-md m-4 p-0 relative shadow-2xl bg-yellow-200 border-4 border-black rounded-xl overflow-hidden" style="background-image: none;">
+    <img src="dr-evil-shane.jpg" alt="Dr. Evil Shane" class="host-avatar">
+    <div class="flex items-center gap-4 p-4 pb-0">
+      <div class="flex-1 text-center">
+        <h2 id="modal-title" class="text-2xl sm:text-3xl font-bold text-black mb-0" style="font-family: 'Bangers', cursive; letter-spacing: 1px;">SHIFT DETAILS</h2>
+        <div id="modal-date" class="text-black text-base font-semibold"></div>
+      </div>
+      <button id="close-modal" class="ml-auto comic-button bg-primary-red rounded-full w-10 h-10 flex items-center justify-center text-2xl p-0 absolute top-2 right-2">X</button>
+    </div>
+    <div id="modal-content" class="text-black px-6 py-3 text-lg font-bold font-sans leading-relaxed">
+      <!-- Modal content will be injected here -->
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const scheduleData = {
+    '2025-8-3': { name: 'Shane', start: '1:00 PM', end: '9:15 PM' },
+    '2025-8-5': { name: 'Shane', start: '5:15 PM', end: '9:15 PM' },
+    '2025-8-6': { name: 'Shane', start: '4:15 PM', end: '9:15 PM' },
+  };
+  const fullSchedule = {
+    '2025-8-3': [
+      { name: 'Shari', start: '10:45 AM', end: '11:45 AM' },
+      { name: 'Shane', start: '1:00 PM', end: '9:15 PM' },
+      { name: 'Deanthony', start: '4:00 PM', end: '9:15 PM' }
+    ],
+    '2025-8-5': [
+      { name: 'Shari', start: '8:00 AM', end: '6:00 PM' },
+      { name: 'Dylan', start: '12:15 PM', end: '9:15 PM' },
+      { name: 'Brendan', start: '5:00 AM', end: '10:00 AM' },
+      { name: 'Shane', start: '5:15 PM', end: '9:15 PM' },
+      { name: 'Deanthony', start: '5:00 AM', end: '10:00 AM' },
+      { name: 'Jacob', start: '7:00 AM', end: '2:00 PM' }
+    ],
+    '2025-8-6': [
+      { name: 'Shari', start: '8:00 AM', end: '4:15 PM' },
+      { name: 'Dylan', start: '2:00 PM', end: '9:15 PM' },
+      { name: 'Brendan', start: '5:00 AM', end: '1.00 PM' },
+      { name: 'Shane', start: '4:15 PM', end: '9:15 PM' },
+      { name: 'Deanthony', start: '5:00 AM', end: '10:00 AM' },
+      { name: 'Jacob', start: '4:00 PM', end: '9:00 PM' }
+    ]
+  };
+  const holidays = {
+    '2025-8-7': { label: '🎉', name: "ComicCon" },
+    '2025-8-18': { label: '⭐', name: "Hero Day" }
+  };
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  let currentDate = new Date('2025-08-01T12:00:00');
+  const calendarGrid = document.getElementById('calendar-grid');
+  const monthYearHeader = document.getElementById('month-year-header');
+  const prevMonthBtn = document.getElementById('prev-month');
+  const nextMonthBtn = document.getElementById('next-month');
+  const monthSelect = document.getElementById('month-select');
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  const modal = document.getElementById('modal');
+  const modalTitle = document.getElementById('modal-title');
+  const modalContent = document.getElementById('modal-content');
+  const closeModalBtn = document.getElementById('close-modal');
+  const modalDate = document.getElementById('modal-date');
+  const heroBadge = document.getElementById('hero-badge');
+  heroBadge.style.opacity = '0';
+  heroBadge.style.transform = 'translateY(-100px) scale(0.7)';
+  setTimeout(() => {
+    heroBadge.style.transition = 'all 0.85s cubic-bezier(.23,1.05,.38,1.02)';
+    heroBadge.style.opacity = '1';
+    heroBadge.style.transform = 'translateY(0) scale(1)';
+  }, 220);
+  function parseTime(str) {
+    // returns minutes since midnight
+    let [time, period] = str.split(' ');
+    let [h, m] = time.split(':').map(Number);
+    if (period === 'PM' && h !== 12) h += 12;
+    if (period === 'AM' && h === 12) h = 0;
+    return h * 60 + (m || 0);
+  }
+  function hasOverlap(a, b) {
+    let aStart = parseTime(a.start), aEnd = parseTime(a.end);
+    let bStart = parseTime(b.start), bEnd = parseTime(b.end);
+    return (aStart < bEnd && bStart < aEnd);
+  }
+  function renderCalendar() {
+    calendarGrid.innerHTML = '';
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    monthYearHeader.textContent = `${monthNames[month]} ${year}`;
+    const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    dayLabels.forEach(lbl => {
+      const cell = document.createElement('div');
+      cell.textContent = lbl;
+      cell.className = "text-base font-bold text-center pb-1 text-yellow-300";
+      calendarGrid.appendChild(cell);
+    });
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevMonthDays = new Date(year, month, 0).getDate();
+    let startPad = firstDay;
+    for (let i = 0; i < startPad; i++) {
+      const dayNum = prevMonthDays - startPad + i + 1;
+      const cell = document.createElement('div');
+      cell.className = "day-cell other-month";
+      cell.textContent = dayNum;
+      calendarGrid.appendChild(cell);
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const key = `${year}-${month+1}-${day}`;
+      const cell = document.createElement('div');
+      cell.className = "day-cell";
+      cell.innerHTML = `<span class="day-number">${day}</span>`;
+      if (holidays[key]) {
+        const badge = document.createElement('span');
+        badge.className = 'day-badge';
+        badge.title = holidays[key].
+name;
+        badge.textContent = holidays[key].label;
+        cell.appendChild(badge);
+      }
+      if (fullSchedule[key]) {
+        cell.classList.add('scheduled');
+        cell.tabIndex = 0; // Make focusable
+        cell.setAttribute('role', 'button');
+        cell.setAttribute('aria-label', `See schedule for ${monthNames[month]} ${day}`);
+        cell.addEventListener('click', () => showModalForDay(key, date));
+        cell.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') showModalForDay(key, date);
+        });
+      }
+      calendarGrid.appendChild(cell);
+    }
+    const totalCells = dayLabels.length + startPad + daysInMonth;
+    const nextDays = (7 - (totalCells % 7)) % 7;
+    for (let i = 1; i <= nextDays; i++) {
+      const cell = document.createElement('div');
+      cell.className = "day-cell other-month";
+      cell.textContent = i;
+      calendarGrid.appendChild(cell);
+    }
+  }
+
+  function showModalForDay(key, dateObj) {
+    const dayEvents = fullSchedule[key];
+    if (!dayEvents) return;
+    modalTitle.textContent = "SHIFT DETAILS";
+    modalDate.textContent = `${monthNames[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
+
+    // Sort for display order:
+    // 1. Shane (always on top, in red, larger)
+    // 2. Anyone overlapping with Shane (blue)
+    // 3. Everyone else (default)
+    const shaneShifts = dayEvents.filter(ev => ev.name.toLowerCase() === 'shane');
+    const overlaps = [];
+    const rest = [];
+    dayEvents.forEach(ev => {
+      if (ev.name.toLowerCase() === 'shane') return;
+      // Check overlap with any Shane shift
+      if (shaneShifts.some(s => hasOverlap(s, ev))) overlaps.push(ev);
+      else rest.push(ev);
+    });
+
+    let html = '';
+    shaneShifts.forEach(ev => {
+      html += `<div class="mb-2" style="font-size:1.35em;"><span style="color:#ef4444;font-weight:900;">${ev.name}:</span> <span style="color:#111;">${ev.start}</span> – <span style="color:#111;">${ev.end}</span></div>`;
+    });
+    overlaps.forEach(ev => {
+      html += `<div class="mb-2"><span style="color:#2563eb;font-weight:bold;">${ev.name}:</span> <span style="color:#222;">${ev.start}</span> – <span style="color:#222;">${ev.end}</span></div>`;
+    });
+    rest.forEach(ev => {
+      html += `<div class="mb-2"><span style="color:#111;">${ev.name}:</span> <span style="color:#444;">${ev.start}</span> – <span style="color:#444;">${ev.end}</span></div>`;
+    });
+
+    modalContent.innerHTML = html;
+    modalBackdrop.classList.remove('hidden');
+    setTimeout(() => { modal.style.transform = 'scale(1)'; }, 30);
+    trapFocus(modal);
+  }
+
+  function hideModal() {
+    modal.style.transform = 'scale(0)';
+    setTimeout(() => {
+      modalBackdrop.classList.add('hidden');
+      document.removeEventListener('keydown', trapFocusHandler, true);
+    }, 250);
+  }
+
+  // Modal accessibility: focus trap, close on ESC or backdrop
+  let trapFocusHandler = null;
+  function trapFocus(el) {
+    const focusable = el.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    trapFocusHandler = function(e) {
+      if (!modalBackdrop.classList.contains('hidden')) {
+        if (e.key === 'Tab') {
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault(); last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault(); first.focus();
+          }
+        } else if (e.key === 'Escape') {
+          hideModal();
+        }
+      }
+    };
+    document.addEventListener('keydown', trapFocusHandler, true);
+    // Click backdrop closes modal
+    modalBackdrop.addEventListener('click', (e) => {
+      if (e.target === modalBackdrop) hideModal();
+    });
+    setTimeout(() => { first && first.focus(); }, 120);
+  }
+
+  closeModalBtn.addEventListener('click', hideModal);
+
+  // Month navigation
+  prevMonthBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
+    syncMonthSelect();
+  });
+  nextMonthBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar();
+    syncMonthSelect();
+  });
+
+  // Month select dropdown
+  function syncMonthSelect() {
+    monthSelect.value = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}`;
+  }
+
+  function renderMonthSelect() {
+    const months = [];
+    let d = new Date();
+    d.setMonth(d.getMonth() - 6);
+    for (let i = 0; i < 13; i++) {
+      const y = d.getFullYear(), m = d.getMonth();
+      months.push({ y, m });
+      d.setMonth(d.getMonth() + 1);
+    }
+    monthSelect.innerHTML = '';
+    months.forEach(({ y, m }) => {
+      const opt = document.createElement('option');
+      opt.value = `${y}-${m + 1}`;
+      opt.textContent = `${monthNames[m]} ${y}`;
+      if (y === currentDate.getFullYear() && m === currentDate.getMonth())
+        opt.selected = true;
+      monthSelect.appendChild(opt);
+    });
+  }
+  monthSelect.addEventListener('change', (e) => {
+    const [y, m] = e.target.value.split('-').map(Number);
+    currentDate = new Date(y, m - 1, 1);
+    renderCalendar();
+  });
+
+  // Initial render
+  renderCalendar();
+  renderMonthSelect();
+  syncMonthSelect();
+});
+</script>
+</body>
+</html>
