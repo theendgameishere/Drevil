@@ -63,86 +63,161 @@
     .comic-button:active {
       transform: translateY(2px) scale(.97);
     }
+    .avatar-badge {
+      position: absolute;
+      top: 12px;
+      right: 18px;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: 4px solid #222;
+      box-shadow: 0 4px 16px #000a;
+      background: #fff;
+      object-fit: cover;
+      z-index: 2;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 0.75rem;
+    }
+    .day-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1/1;
+      font-size: 1.5rem;
+      cursor: pointer;
+      border: 3px solid var(--border-color);
+      background-color: #4a5568;
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+      transition: all 0.15s;
+      position: relative;
+      min-height: 54px;
+    }
+    .day-cell:hover {
+      transform: scale(1.05);
+      background: linear-gradient(100deg, #718096 80%, #a0aec0 100%);
+    }
+    .day-cell.other-month {
+      background-color: var(--panel-bg);
+      color: #718096;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .day-cell.scheduled {
+      background: linear-gradient(100deg, #3b82f6 85%, #facc15 120%);
+      color: var(--text-light);
+      border-color: var(--primary-yellow);
+      text-shadow: 2px 2px 0px var(--border-color);
+      font-weight: bold;
+    }
+    .day-cell .day-badge {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 1.5rem;
+      pointer-events: none;
+      z-index: 5;
+    }
+    #modal {
+      box-shadow: 0 10px 32px #0009, 8px 8px 0 #222;
+      background-color: #f7f5c9 !important;
+      border-radius: 18px !important;
+      padding: 0 !important;
+    }
+    #modal-content {
+      font-family: 'Open Sans', Arial, sans-serif !important;
+      color: #222 !important;
+    }
     @media (max-width: 640px) {
       .text-5xl { font-size: 2rem !important; }
       .text-4xl { font-size: 1.4rem !important; }
+      .avatar-badge { width: 54px; height: 54px; top: 8px; right: 10px; }
     }
   </style>
 </head>
 <body>
-<!-- Floating Dr. Evil avatar in the top right corner -->
-<div class="fixed top-8 right-5 z-20 flex flex-col items-center">
-  <img 
-    src="https://raw.githubusercontent.com/theendgameishere/Drevil/refs/heads/main/dr-evil-shane.jpg.png"
-    alt="Dr. Evil Shane"
-    class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-black shadow-lg bg-white"
-    style="background:#fff;"
-  >
-</div>
+<div class="container mx-auto p-4 max-w-2xl">
 
-<div class="container mx-auto p-4 max-w-4xl">
-  <!-- Header / Stats -->
-  <header class="grid grid-cols-1 md:grid-cols-3 items-center gap-4 mb-6">
-    <div class="comic-panel p-4 text-center">
-      <h2 class="text-2xl" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">Hours Logged</h2>
-      <p class="text-5xl">25</p>
+  <!-- HEADER / STATS PANELS -->
+  <div class="grid grid-cols-1 gap-6">
+    <!-- Hours Logged Panel with Avatar -->
+    <div class="comic-panel p-6 text-center relative">
+      <h2 class="text-3xl md:text-4xl font-bold" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">
+        HOURS LOGGED
+      </h2>
+      <p class="text-5xl mt-2 mb-0">25</p>
+      <img 
+        src="https://raw.githubusercontent.com/theendgameishere/Drevil/refs/heads/main/dr-evil-shane.jpg.png"
+        alt="Dr. Evil Shane"
+        class="avatar-badge"
+      >
     </div>
-    <div></div> <!-- Empty center for spacing or future badge -->
-    <div class="comic-panel p-4 text-center">
-      <h2 class="text-2xl" style="color:var(--primary-red);text-shadow:2px 2px 0px var(--border-color);">Hours Missed</h2>
-      <p class="text-5xl">0</p>
-    </div>
-  </header>
-
-  <!-- Next section goes here (calendar, etc) -->
-  
-  <!-- Calendar -->
-  <main class="comic-panel p-4">
-    <div class="flex justify-between items-center mb-4">
-      <button id="prev-month" class="comic-button bg-primary-blue">Prev</button>
-      <h1 id="month-year-header" class="text-5xl text-center" style="color:var(--primary-yellow);text-shadow:3px 3px 0px var(--border-color);">August 2025</h1>
-      <button id="next-month" class="comic-button bg-primary-blue">Next</button>
-    </div>
-    <div id="calendar-grid" class="calendar-grid">
-      <!-- Calendar will be generated here -->
-    </div>
-  </main>
-  <!-- Footer -->
-  <footer class="mt-6 text-center">
-    <div class="inline-block comic-panel p-2">
-      <label for="month-select" class="text-2xl mr-2" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">Mission Archives:</label>
-      <select id="month-select" class="comic-button bg-primary-blue text-2xl p-2 pr-8"></select>
-    </div>
-  </footer>
-</div>
-<!-- Modal -->
-<div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-  <div id="modal" class="comic-panel w-full max-w-sm sm:max-w-md m-4 p-0 relative shadow-2xl bg-yellow-200 border-4 border-black rounded-xl overflow-hidden" style="background-image: none;">
-    <img src="https://raw.githubusercontent.com/theendgameishere/Drevil/refs/heads/main/dr-evil-shane.jpg.png" alt="Dr. Evil Shane" class="host-avatar">
-    <div class="flex items-center gap-4 p-4 pb-0">
-      <div class="flex-1 text-center">
-        <h2 id="modal-title" class="text-2xl sm:text-3xl font-bold text-black mb-0" style="font-family: 'Bangers', cursive; letter-spacing: 1px;">SHIFT DETAILS</h2>
-        <div id="modal-date" class="text-black text-base font-semibold"></div>
-      </div>
-      <button id="close-modal" class="ml-auto comic-button bg-primary-red rounded-full w-10 h-10 flex items-center justify-center text-2xl p-0 absolute top-2 right-2">X</button>
-    </div>
-    <div id="modal-content" class="text-black px-6 py-3 text-lg font-bold font-sans leading-relaxed">
-      <!-- Modal content will be injected here -->
+    <!-- Hours Missed Panel -->
+    <div class="comic-panel p-6 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold" style="color:var(--primary-red);text-shadow:2px 2px 0px var(--border-color);">
+        HOURS MISSED
+      </h2>
+      <p class="text-5xl mt-2 mb-0">0</p>
     </div>
   </div>
-</div>
-<!-- Admin Dropdown for Uploading Schedule Image -->
-<div class="fixed bottom-6 right-6 z-40">
-  <details class="group relative">
-    <summary class="comic-button bg-primary-blue text-xl px-8 cursor-pointer select-none">Admin</summary>
-    <div class="absolute right-0 mt-2 min-w-[220px] comic-panel p-4 bg-[#222] border border-black rounded-lg shadow-lg">
-      <label class="block text-base text-yellow-300 mb-2 cursor-pointer hover:underline">
-        Upload Schedule Image
-        <input type="file" id="schedule-upload" accept="image/*" class="hidden">
-      </label>
-      <div id="schedule-preview" class="mt-2"></div>
+
+  <!-- Calendar Navigation -->
+  <div class="comic-panel p-6 mt-6 text-center flex flex-col gap-4 items-center">
+    <div class="flex flex-row gap-4 justify-center items-center">
+      <button id="prev-month" class="comic-button bg-primary-blue">PREV</button>
+      <span id="month-year-header" class="text-3xl md:text-4xl font-bold" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">
+        AUGUST 2025
+      </span>
+      <button id="next-month" class="comic-button bg-primary-blue">NEXT</button>
     </div>
-  </details>
+    <div id="calendar-grid" class="calendar-grid"></div>
+  </div>
+
+  <!-- Mission Archives -->
+  <div class="comic-panel p-6 mt-6 text-center flex flex-col gap-2 items-center">
+    <label class="text-2xl md:text-3xl font-bold mb-2" style="color:var(--primary-yellow);text-shadow:2px 2px 0px var(--border-color);">
+      MISSION ARCHIVES:
+    </label>
+    <select id="month-select" class="comic-button bg-primary-blue text-xl p-2 pr-8">
+      <!-- Populated by JS -->
+    </select>
+  </div>
+
+  <!-- Modal for shift details -->
+  <div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div id="modal" class="comic-panel w-full max-w-sm sm:max-w-md m-4 p-0 relative shadow-2xl bg-yellow-200 border-4 border-black rounded-xl overflow-hidden" style="background-image: none;">
+      <div class="flex items-center gap-4 p-4 pb-0">
+        <div class="flex-1 text-center">
+          <h2 id="modal-title" class="text-2xl sm:text-3xl font-bold text-black mb-0" style="font-family: 'Bangers', cursive; letter-spacing: 1px;">SHIFT DETAILS</h2>
+          <div id="modal-date" class="text-black text-base font-semibold"></div>
+        </div>
+        <button id="close-modal" class="ml-auto comic-button bg-primary-red rounded-full w-10 h-10 flex items-center justify-center text-2xl p-0 absolute top-2 right-2">X</button>
+      </div>
+      <div id="modal-content" class="text-black px-6 py-3 text-lg font-bold font-sans leading-relaxed">
+        <!-- Modal content will be injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Dropdown for Uploading Schedule Image -->
+  <div class="fixed bottom-6 right-6 z-40">
+    <details class="group relative">
+      <summary class="comic-button bg-primary-blue text-xl px-8 cursor-pointer select-none">ADMIN</summary>
+      <div class="absolute right-0 mt-2 min-w-[220px] comic-panel p-4 bg-[#222] border border-black rounded-lg shadow-lg">
+        <label class="block text-base text-yellow-300 mb-2 cursor-pointer hover:underline">
+          Upload Schedule Image
+          <input type="file" id="schedule-upload" accept="image/*" class="hidden">
+        </label>
+        <div id="schedule-preview" class="mt-2"></div>
+      </div>
+    </details>
+  </div>
+
 </div>
 <script>
 const uploadInput = document.getElementById('schedule-upload');
@@ -160,12 +235,8 @@ uploadInput.addEventListener('change', function(e) {
     schedulePreview.innerHTML = '<span class="text-red-500">Please select a valid image file.</span>';
   }
 });
+
 document.addEventListener('DOMContentLoaded', () => {
-  const scheduleData = {
-    '2025-8-3': { name: 'Shane', start: '1:00 PM', end: '9:15 PM' },
-    '2025-8-5': { name: 'Shane', start: '5:15 PM', end: '9:15 PM' },
-    '2025-8-6': { name: 'Shane', start: '4:15 PM', end: '9:15 PM' },
-  };
   const fullSchedule = {
     '2025-8-3': [
       { name: 'Shari', start: '10:45 AM', end: '11:45 AM' },
@@ -189,10 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'Jacob', start: '4:00 PM', end: '9:00 PM' }
     ]
   };
-  const holidays = {
-    '2025-8-7': { label: '🎉', name: "ComicCon" },
-    '2025-8-18': { label: '⭐', name: "Hero Day" }
-  };
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   let currentDate = new Date('2025-08-01T12:00:00');
   const calendarGrid = document.getElementById('calendar-grid');
@@ -206,14 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalContent = document.getElementById('modal-content');
   const closeModalBtn = document.getElementById('close-modal');
   const modalDate = document.getElementById('modal-date');
-  const heroBadge = document.getElementById('hero-badge');
-  heroBadge.style.opacity = '0';
-  heroBadge.style.transform = 'translateY(-100px) scale(0.7)';
-  setTimeout(() => {
-    heroBadge.style.transition = 'all 0.85s cubic-bezier(.23,1.05,.38,1.02)';
-    heroBadge.style.opacity = '1';
-    heroBadge.style.transform = 'translateY(0) scale(1)';
-  }, 220);
+
   function parseTime(str) {
     let [time, period] = str.split(' ');
     let [h, m] = time.split(':').map(Number);
@@ -230,8 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     calendarGrid.innerHTML = '';
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    monthYearHeader.textContent = `${monthNames[month]}
-    ${year}`;
+    monthYearHeader.textContent = `${monthNames[month]} ${year}`;
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     dayLabels.forEach(lbl => {
       const cell = document.createElement('div');
@@ -256,13 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const cell = document.createElement('div');
       cell.className = "day-cell";
       cell.innerHTML = `<span class="day-number">${day}</span>`;
-      if (holidays[key]) {
-        const badge = document.createElement('span');
-        badge.className = 'day-badge';
-        badge.title = holidays[key].name;
-        badge.textContent = holidays[key].label;
-        cell.appendChild(badge);
-      }
       if (fullSchedule[key]) {
         cell.classList.add('scheduled');
         cell.tabIndex = 0; // Make focusable
@@ -284,16 +336,14 @@ document.addEventListener('DOMContentLoaded', () => {
       calendarGrid.appendChild(cell);
     }
   }
-
   function showModalForDay(key, dateObj) {
     const dayEvents = fullSchedule[key];
     if (!dayEvents) return;
     modalTitle.textContent = "SHIFT DETAILS";
-    modalDate.textContent = `${monthNames[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
+    modalDate.textContent = `${monthNames[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear
+        ()}`;
 
-    // 1. Shane (always on top, red/large)
-    // 2. Overlapping with Shane (blue)
-    // 3. All others
+    // Sort: Shane first (red, large), then overlaps (blue), then others
     const shaneShifts = dayEvents.filter(ev => ev.name.toLowerCase() === 'shane');
     const overlaps = [];
     const rest = [];
@@ -305,13 +355,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let html = '';
     shaneShifts.forEach(ev => {
-      html += `<div class="mb-2" style="font-size:1.35em;"><span style="color:#ef4444;font-weight:900;">${ev.name}:</span> <span style="color:#111;">${ev.start}</span> – <span style="color:#111;">${ev.end}</span></div>`;
+      html += `<div class="mb-2" style="font-size:1.25em;">
+        <span style="color:#ef4444;font-weight:900;">Shane:</span>
+        <span style="color:#111;">${ev.start} – ${ev.end}</span>
+      </div>`;
     });
     overlaps.forEach(ev => {
-      html += `<div class="mb-2"><span style="color:#2563eb;font-weight:bold;">${ev.name}:</span> <span style="color:#222;">${ev.start}</span> – <span style="color:#222;">${ev.end}</span></div>`;
+      html += `<div class="mb-2">
+        <span style="color:#2563eb;font-weight:bold;">${ev.name}:</span>
+        <span style="color:#222;">${ev.start} – ${ev.end}</span>
+      </div>`;
     });
     rest.forEach(ev => {
-      html += `<div class="mb-2"><span style="color:#111;">${ev.name}:</span> <span style="color:#444;">${ev.start}</span> – <span style="color:#444;">${ev.end}</span></div>`;
+      html += `<div class="mb-2">
+        <span style="color:#111;">${ev.name}:</span>
+        <span style="color:#444;">${ev.start} – ${ev.end}</span>
+      </div>`;
     });
 
     modalContent.innerHTML = html;
@@ -405,4 +464,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 </body>
-</html>
+</html>                                                                               
