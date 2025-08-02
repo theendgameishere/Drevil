@@ -165,7 +165,6 @@
     </div>
     <div class="flex justify-center">
       <div class="w-40 h-40 rounded-full comic-panel p-1 bg-primary-blue flex items-center justify-center overflow-visible relative" id="hero-badge">
-        <!-- SVG flies in on load -->
         <svg class="w-32 h-32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
           <path d="M 50,10 L 90,90 L 10,90 Z" fill="#ef4444" stroke="#000" stroke-width="4"/>
           <path d="M 50,20 L 80,80 L 20,80 Z" fill="#facc15"/>
@@ -200,7 +199,7 @@
 <!-- Modal -->
 <div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
   <div id="modal" class="comic-panel w-full max-w-sm sm:max-w-md m-4 p-0 relative shadow-2xl bg-yellow-200 border-4 border-black rounded-xl overflow-hidden" style="background-image: none;">
-    <img src="dr-evil-shane.jpg" alt="Dr. Evil Shane" class="host-avatar">
+    <img src="https://raw.githubusercontent.com/theendgameishere/Drevil/refs/heads/main/dr-evil-shane.jpg.png" alt="Dr. Evil Shane" class="host-avatar">
     <div class="flex items-center gap-4 p-4 pb-0">
       <div class="flex-1 text-center">
         <h2 id="modal-title" class="text-2xl sm:text-3xl font-bold text-black mb-0" style="font-family: 'Bangers', cursive; letter-spacing: 1px;">SHIFT DETAILS</h2>
@@ -213,7 +212,35 @@
     </div>
   </div>
 </div>
+<!-- Admin Dropdown for Uploading Schedule Image -->
+<div class="fixed bottom-6 right-6 z-40">
+  <details class="group relative">
+    <summary class="comic-button bg-primary-blue text-xl px-8 cursor-pointer select-none">Admin</summary>
+    <div class="absolute right-0 mt-2 min-w-[220px] comic-panel p-4 bg-[#222] border border-black rounded-lg shadow-lg">
+      <label class="block text-base text-yellow-300 mb-2 cursor-pointer hover:underline">
+        Upload Schedule Image
+        <input type="file" id="schedule-upload" accept="image/*" class="hidden">
+      </label>
+      <div id="schedule-preview" class="mt-2"></div>
+    </div>
+  </details>
+</div>
 <script>
+const uploadInput = document.getElementById('schedule-upload');
+const schedulePreview = document.getElementById('schedule-preview');
+
+uploadInput.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      schedulePreview.innerHTML = `<img src="${ev.target.result}" alt="Schedule Preview" class="w-full max-w-xs border-2 border-yellow-300 rounded-md shadow-md mt-2">`;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    schedulePreview.innerHTML = '<span class="text-red-500">Please select a valid image file.</span>';
+  }
+});
 document.addEventListener('DOMContentLoaded', () => {
   const scheduleData = {
     '2025-8-3': { name: 'Shane', start: '1:00 PM', end: '9:15 PM' },
@@ -269,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
     heroBadge.style.transform = 'translateY(0) scale(1)';
   }, 220);
   function parseTime(str) {
-    // returns minutes since midnight
     let [time, period] = str.split(' ');
     let [h, m] = time.split(':').map(Number);
     if (period === 'PM' && h !== 12) h += 12;
@@ -285,7 +311,8 @@ document.addEventListener('DOMContentLoaded', () => {
     calendarGrid.innerHTML = '';
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    monthYearHeader.textContent = `${monthNames[month]} ${year}`;
+    monthYearHeader.textContent = `${monthNames[month]}
+    ${year}`;
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     dayLabels.forEach(lbl => {
       const cell = document.createElement('div');
@@ -313,8 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (holidays[key]) {
         const badge = document.createElement('span');
         badge.className = 'day-badge';
-        badge.title = holidays[key].
-name;
+        badge.title = holidays[key].name;
         badge.textContent = holidays[key].label;
         cell.appendChild(badge);
       }
@@ -346,16 +372,14 @@ name;
     modalTitle.textContent = "SHIFT DETAILS";
     modalDate.textContent = `${monthNames[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
 
-    // Sort for display order:
-    // 1. Shane (always on top, in red, larger)
-    // 2. Anyone overlapping with Shane (blue)
-    // 3. Everyone else (default)
+    // 1. Shane (always on top, red/large)
+    // 2. Overlapping with Shane (blue)
+    // 3. All others
     const shaneShifts = dayEvents.filter(ev => ev.name.toLowerCase() === 'shane');
     const overlaps = [];
     const rest = [];
     dayEvents.forEach(ev => {
       if (ev.name.toLowerCase() === 'shane') return;
-      // Check overlap with any Shane shift
       if (shaneShifts.some(s => hasOverlap(s, ev))) overlaps.push(ev);
       else rest.push(ev);
     });
@@ -405,7 +429,6 @@ name;
       }
     };
     document.addEventListener('keydown', trapFocusHandler, true);
-    // Click backdrop closes modal
     modalBackdrop.addEventListener('click', (e) => {
       if (e.target === modalBackdrop) hideModal();
     });
